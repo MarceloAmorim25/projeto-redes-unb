@@ -8,18 +8,21 @@ from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
 
 
-class SingleSwitchTopo(Topo):
-    "Single switch connected to n hosts."
+class TreeTopology(Topo):
 
     def build(self, n=2):
-	    core_switch = self.addSwitch("c1")
+	#switch da camada core
+	core_switch = self.addSwitch("c1")
+	#switchs de agregação
         aggregation_switch_1 = self.addSwitch("a1")
         aggregation_switch_2 = self.addSwitch("a2")
+	#switches de borda (edge switches)
         edge_switch_1 = self.addSwitch("e1")
         edge_switch_2 = self.addSwitch("e2")
         edge_switch_3 = self.addSwitch("e3")
         edge_switch_4 = self.addSwitch("e4")
-	    host1 = self.addHost("h1")
+	# servidores do data center (hosts)
+	host1 = self.addHost("h1")
         host2 = self.addHost("h2")
         host3 = self.addHost("h3")
         host4 = self.addHost("h4")
@@ -27,7 +30,8 @@ class SingleSwitchTopo(Topo):
         host6 = self.addHost("h6")
         host7 = self.addHost("h7")
         host8 = self.addHost("h8")
-	    self.addLink( host1, edge_switch_1, bw=10, delay="5ms", loss=2, max_queue_size=1000, use_htb=True )
+	# criando links entre os equipamentos
+	self.addLink( host1, edge_switch_1, bw=10, delay="5ms", loss=2, max_queue_size=1000, use_htb=True )
         self.addLink( host2, edge_switch_1, bw=10, delay="5ms", loss=2, max_queue_size=1000, use_htb=True )
         self.addLink( host3, edge_switch_2, bw=10, delay="5ms", loss=2, max_queue_size=1000, use_htb=True )
         self.addLink( host4, edge_switch_2, bw=10, delay="5ms", loss=2, max_queue_size=1000, use_htb=True )
@@ -45,15 +49,15 @@ class SingleSwitchTopo(Topo):
 
 
 def testaConexoes():
-    "Create network and run simple performance test"
-    topo = SingleSwitchTopo( n=8 )
+    "Cria rede e faz teste de performance"
+    topo = TreeTopology( n=8 )
     net = Mininet( topo=topo, host=CPULimitedHost, link=TCLink )
     net.start()
     print( "Dumping host connections" )
     dumpNodeConnections( net.hosts )
-    print( "Testing network connectivity" )
+    print( "Testando conectividade da rede" )
     net.pingAll()
-    print( "Testing bandwidth between hosts" )
+    print( "Testando largura de banda entre os hosts" )
     h1, h2, h3, h4, h5, h6, h7, h8 = net.get( "h1", "h2" , "h3", "h4", "h5", "h6", "h7" , "h8")
     net.iperf( (h1, h2) )
     net.iperf( (h3, h4) )
